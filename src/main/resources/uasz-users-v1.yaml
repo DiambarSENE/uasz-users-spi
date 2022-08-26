@@ -1,0 +1,441 @@
+
+  openapi: "3.0.0"
+  info:
+    version: 1.0.0
+    title: Micro-service de gestion des utilisateurs
+    description: >-
+      cet microservice permet de gerer les utilisateurs(creation de compte,
+      connexion, deconnexion, modifier,supprimer,obtenir un utilisateur par son id,afficher la liste des utilisateurs)
+  servers:
+    - url: http://localhost:8080/sn/uasz/v1/uasz-user
+  paths:
+    /user/roles:
+      get:
+        tags:
+          - role
+        summary: Renvoyer tous les roles
+        description: Renvoie tous les champs de role
+        operationId: getAllRole
+        responses:
+          "200":
+            description: Tableau JSON de role
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Role"
+          "400":
+            description: Requête invalide
+      post:
+        tags:
+          - role
+        summary: Enregistrer un nouveau role
+        description: Ajoute les détails d'un nouveau role aux tables role
+        operationId: createRole
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Role"
+          required: true
+        responses:
+          default:
+            description: Renvoie une confirmation de l'enregistrement réussi du role
+    /user/roles/{roleName}:
+      get:
+        tags:
+          - role
+        summary: Renvoyer le ou les role(s) relatives à un utilisateur spécifique
+        description: Renvoie le ou les role(s)  relatifs a utilisateur dont l'id est 'roleid'
+        operationId: getRoleByName
+        parameters:
+          - name: roleName
+            in: path
+            description: identifiant de lutilisateur
+            required: true
+            style: simple
+            explode: false
+            schema:
+              type: string
+        responses:
+          "200":
+            description: Un objet role
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Role'
+          "404":
+            description: Utilisateur avec l'ID spécifié introuvable dans la base de données
+      put:
+        tags:
+          - role
+        summary: Mettre à jour les détails d'un role spécifique
+        description: Met à jour les détails d'un role
+        operationId: updateRole
+        parameters:
+          - name: roleName
+            in: path
+            description: identifiant de l'utilisateur
+            required: true
+            style: simple
+            explode: false
+            schema:
+              type: string
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: Mise à jour réussie de l'objet role
+          required: true
+        responses:
+          "400":
+            description: invalid role
+          "404":
+            description: Utilisateur avec l'ID spécifié introuvable dans la base de données
+      delete:
+        tags:
+          - role
+        summary: Supprimer un role spécifique de la base de données
+        description: Supprime les détails du role relatifs au utilisateur dont l'identifiant est 'userId' de la table 'utilisateur'
+        operationId: deleteRole
+        parameters:
+          - name: userId
+            in: path
+            description: Le role qui doit être supprimé
+            required: true
+            style: simple
+            explode: false
+            schema:
+              type: integer
+        responses:
+          "400":
+            description: Invalid rolename supplied
+          "404":
+            description: role n'est pas trouver
+    /user:
+      get:
+        tags:
+          - utilisateur
+        summary: Renvoyer tous les l'utilisateur
+        description: Renvoie les champs 'id', 'nom', 'prenom', 'email', 'mot de passe' , 'telephone', 'ufr'et 'departement' pour tous les utilisateurs de la table 'utilisateur'
+        operationId: getAllUser
+        responses:
+          "200":
+            description: Tableau JSON de l'utilisateur
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/User"
+                example:
+                  - id: 1
+                    nom: sene
+                    prenom: heros
+                    email: d.sene2005@gmail.com
+                    password: sene2005@
+                    telephone: 779221682
+                    ufr: st
+                    departement: informatique
+                    roles: chef departememt
+                  - id: 2
+                    nom: sene
+                    prenom: heros
+                    email: d.sene2005@gmail.com
+                    password: sene2005@
+                    telephone: 779221682
+                    ufr: st
+                    departement: informatique
+                    roles: responsable master
+          "400":
+            description: Requête invalide
+      post:
+        tags:
+          - utilisateur
+        summary: Enregistrer un nouveau utilisateur
+        description: Ajoute les détails d'un nouveau utilisateur aux tables user
+        operationId: addUser
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+              examples:
+                "0":
+                  value: |-
+                    {
+                        "nom": "nom d'utilisateur",
+                        "prenom": "prenom de l'utilisateur",
+                        "email": "email de l'utilisateur"
+                        "password": "mot de passe de l'utilisateur"
+                        "telephone": "numero telephone de l'utilisateur",
+                        "matricule": "matricule de l'utilisateur",
+                        "ufr": "ufr de l'utilisateur",
+                        "departement": "departement de l'utilisateur",
+                        "roles": "exemple: chef de departement",
+                    }
+          required: true
+        responses:
+          default:
+            description: Renvoie une confirmation de l'enregistrement réussi de l'utilisateur
+    /user/createWithArray:
+      post:
+        tags:
+          - utilisateur
+        summary: Crée une liste d'utilisateur avec un tableau d'entrée donné
+        operationId: createUsersWithArrayInput
+        requestBody:
+          $ref: '#/components/requestBodies/UserArray'
+        responses:
+          default:
+            description: opération réussie
+    /user/createWithList:
+      post:
+        tags:
+          - utilisateur
+        summary: Crée une liste d'utilisateur avec un tableau d'entrée donné
+        operationId: createUsersWithListInput
+        requestBody:
+          $ref: '#/components/requestBodies/UserArray'
+        responses:
+          default:
+            description: opération réussie
+    /user/{userId}:
+      get:
+        tags:
+          - utilisateur
+        summary: Renvoyer des informations relatives à un utilisateur spécifique
+        description: Renvoie les champs 'nom', 'prenom', 'email', 'mot de passe', 'telephone','ufr' et 'departement' relatifs a utilisateur dont l'id est 'userid'
+        operationId: getUserById
+        parameters:
+          - name: userId
+            in: path
+            description: identifiant de lutilisateur
+            required: true
+            style: simple
+            explode: false
+            schema:
+              type: integer
+        responses:
+          "200":
+            description: Un objet utilisation
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/User'
+                example:
+                  - id: 1
+                    nom: sene
+                    prenom: heros
+                    email: d.sene2005@gmail.com
+                    password: sene2005@
+                    telephone: 779221682
+                    ufr: st
+                    departement: informatique
+                    roles: enseignant
+          "404":
+            description: Utilisateur avec l'ID spécifié introuvable dans la base de données
+      put:
+        tags:
+          - utilisateur
+        summary: Mettre à jour les détails d'un utilisateur spécifique
+        description: Met à jour les détails 'nom', 'penom', 'email' et 'mot de passe' pour l'utilisateur dont l'id est 'userid'
+        operationId: updateUser
+        parameters:
+          - name: userId
+            in: path
+            description: identifiant de l'utilisateur
+            required: true
+            style: simple
+            explode: false
+            schema:
+              type: integer
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: Mise à jour réussie de l'objet utilisateur
+          required: true
+        responses:
+          "400":
+            description: invalid user
+          "404":
+            description: Utilisateur avec l'ID spécifié introuvable dans la base de données
+      delete:
+        tags:
+          - utilisateur
+        summary: Supprimer un utilisateur spécifique de la base de données
+        description: Supprime les détails de l'utilisateur relatifs au utilisateur dont l'identifiant est 'userId' de la table 'utilisateur'
+        operationId: deleteUser
+        parameters:
+          - name: userId
+            in: path
+            description: L'identifiant qui doit être supprimé
+            required: true
+            style: simple
+            explode: false
+            schema:
+              type: integer
+        responses:
+          "400":
+            description: Invalid username supplied
+          "404":
+            description: Utilisateur n'est pas trouver
+    /user/login:
+      get:
+        tags:
+          - utilisateur
+        summary: Traiter l'email et le mot de passe soumis par l'utilisateur
+        description: Ce point de terminaison reçoit un « email » et un « mot de passe » et affiche la « Vue de connexion » ou redirige vers la « Vue d'échec deconnexion », selon que les champs fournis s'authentifient avec succès.
+        operationId: loginUser
+        parameters:
+          - name: useremail
+            in: query
+            description: L'email de connexion
+            required: true
+            style: form
+            explode: true
+            schema:
+              type: string
+          - name: password
+            in: query
+            description: Le mot de passe de connexion
+            required: true
+            style: form
+            explode: true
+            schema:
+              type: string
+        responses:
+          "200":
+            description: Authentification réussie d'email et du mot de passe fournis par l'utilisateur, et le rendu ultérieur de la « Vue connectée »
+            content:
+              application/json:
+                schema:
+                  type: string
+          "400":
+            description: E-mail/mot de passe fourni invalide
+    /user/logout:
+      get:
+        tags:
+          - utilisateur
+        summary: Déconnecter l'utilisateur
+        description: Permet à l'utilisateur de se déconnecter, en le redirigeant vers la 'Vue de connexion'.
+        operationId: logoutUser
+        responses:
+          default:
+            description: Indique le succès de la déconnexion de l'utilisateur.
+  components:
+    schemas:
+      User:
+        required:
+          - nom
+          - prenom
+          - email
+          - telephone
+          - password
+          - matricule
+          - ufr
+          - roles
+        type: object
+        properties:
+          id:
+            type: integer
+            description: identifiant de l'enseigant
+            format: int64
+          nom:
+            type: string
+            description: nom l'enseigant
+          prenom:
+            type: string
+            description: prenom l'enseigant
+          email:
+            type: string
+            description: email de l'enseigant
+          password:
+            type: string
+            description: mot de passe de l'enseigant
+          telephone:
+            type: string
+            description: numero telephone de l'enseigant
+          matricule:
+            type: string
+            description: le matricule de l'enseigant
+          dateCreation:
+            type: string
+            description: date de creation
+          ufr:
+            $ref: '#/components/schemas/UFR'
+          departement:
+            $ref: '#/components/schemas/Departement'
+          roles:
+            type: array
+            items:
+              $ref: '#/components/schemas/Role'
+      Role:
+        type: object
+        properties:
+          id:
+            type: integer
+            description: identifiant
+          nom:
+            type: string
+            description: nom de role
+          description:
+            type: string
+            description: description role
+          dateCreation:
+            type: string
+            description: date de creation
+          userId:
+            type: integer
+            description: id de l'utilisateur
+      UFR:
+        type: object
+        properties:
+          id:
+            type: integer
+            description: id de l'ufr
+          nom:
+            type: string
+            description: nom de l'ufr
+          dateCreation:
+            type: string
+            description: date de creation
+          userId:
+              type: integer
+              description: id de l'utilisateur
+      Departement:
+        type: object
+        properties:
+          id:
+            type: integer
+            description: id du Departement
+          nom:
+            type: string
+            description: nom du departement dans un unite de formation(ufr)
+          dateCreation:
+            type: string
+            description: date de creation
+          userId:
+              type: integer
+              description: id de l'utilisateur
+    requestBodies:
+      User:
+        description: User object that needs to be added
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      UserArray:
+        description: List of user object
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+        required: true
